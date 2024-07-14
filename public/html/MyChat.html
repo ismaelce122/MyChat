@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MY CHAT</title>
+    <link rel="stylesheet" href="/stylesheets/MyChat.css">
+</head>
+<body>
+    <div class="titulo" id="titulo">
+        <h1>My Chat</h1>
+        <div class="login" id="box_Login">
+            <form id="login" action="">
+                <label for="login_Input">Apelido:</label>
+                <input type="text" name="login_Input" id="login_Input" placeholder="Digite seu Apelido" required>
+                <button class="bt_Login" onclick="conectar()">ENTRAR</button>
+            </form>
+        </div>
+    </div>
+    <form id="chat_Form" action="">
+        <div class="fundo" id="box_Chat">
+            <div id="chat_Box" class="chat">
+                <!-- As Menssagens do Usuário Aparecerão Aqui: -->
+            </div>    
+            <div class="menssagem">
+                <textarea name="chat_Input" id="chat_Input" rows="1" placeholder="Digite sua Mensagem"></textarea>
+                <button class="bt_mensagem"></button>    
+            </div>
+        </div>
+    </form>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        let conectar = () => {
+            const socket = io()
+        
+            const chat_Form = document.getElementById('chat_Form')
+            const chat_Input = document.getElementById('chat_Input')
+            const chat_Box = document.getElementById('chat_Box')
+            const box_Chat = document.getElementById('box_Chat')
+            const login_Input = document.getElementById('login_Input')
+
+            box_Chat.scrollTop = box_Chat.scrollHeight
+
+            chat_Form.addEventListener('submit', (e) => {
+                e.preventDefault()
+                if(chat_Input.value) {
+                    socket.emit('chat message', {usuario: login_Input.value, mensagem: chat_Input.value})
+
+                    const item_div = document.createElement('div')
+                    const item_box = document.createElement('span')
+                    const item_usuario = document.createElement('h6') 
+                    const item_menssagem = document.createElement('p')
+                    const chat_Box = document.getElementById('chat_Box')
+
+                    item_menssagem.innerHTML = chat_Input.value
+                    item_usuario.innerHTML = login_Input.value
+                    item_box.appendChild(item_usuario)
+                    item_box.appendChild(item_menssagem)
+                    item_div.appendChild(item_box)
+                    chat_Box.appendChild(item_div)
+                    item_box.classList.add('span_Usuario')
+                    item_div.classList.add('box_Usuario')
+                    item_usuario.innerHTML = login_Input.value
+                    box_Chat.scrollTop = box_Chat.scrollHeight
+                    chat_Input.value = ''
+                }
+            })
+
+            box_Chat.scrollTop = box_Chat.scrollHeight
+
+            socket.on('nova_Mensagem', (msg) => {
+                const item_div = document.createElement('div')
+                const item_box = document.createElement('span')
+                const item_usuario = document.createElement('h6') 
+                const item_menssagem = document.createElement('p')
+
+                item_usuario.innerHTML = msg.usuario
+                item_menssagem.innerHTML = msg.mensagem
+
+                item_box.appendChild(item_usuario)
+                item_box.appendChild(item_menssagem)
+                item_div.appendChild(item_box)
+                chat_Box.appendChild(item_div)
+                item_box.classList.add('span_Convidado')
+                item_div.classList.add('box_Convidado')
+
+                box_Chat.scrollTop = box_Chat.scrollHeight
+            })
+        }
+    </script>
+    <script>
+        let form = document.getElementById('login')
+        let box_Login = document.getElementById('box_Login')
+        let box_Chat = document.getElementById('box_Chat')
+        let titulo = document.getElementById('titulo')
+        form.addEventListener('submit', (e) => {
+            e.preventDefault()
+            titulo.style.display = 'none'
+            box_Login.style.display = 'none'
+            box_Chat.style.display = 'flex'
+        })
+    </script>
+</body>
+</html>
